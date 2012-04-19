@@ -80,7 +80,7 @@ if [ ! -e "${FOLDER_ISO}/custom.iso" ]; then
   chmod u+w "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.bin"
 
   mkisofs -r -V "Custom Ubuntu Install CD" \
-    -cache-inodes \
+    -cache-inodes -quiet \
     -J -l -b isolinux/isolinux.bin \
     -c isolinux/boot.cat -no-emul-boot \
     -boot-load-size 4 -boot-info-table \
