@@ -28,6 +28,8 @@ ISO_FILENAME="${FOLDER_ISO}/`basename ${ISO_URL}`"
 
 INITRD_FILENAME="${FOLDER_ISO}/initrd.gz"
 
+ISO_GUESTADDITIONS="/Applications/VirtualBox.app/Contents/MacOS/VBoxGuestAdditions.iso"
+
 # download the installation disk if you haven't already
 if [ ! -e "${ISO_FILENAME}" ]; then
   wget -O "${ISO_FILENAME}" "${ISO_URL}"
@@ -136,9 +138,46 @@ if ! VBoxManage showvminfo "${BOX}" >/dev/null 2>/dev/null; then
     --device 0 \
     --type hdd \
     --medium "${FOLDER_VBOX}/${BOX}/${BOX}.vdi"
+
+  VBoxManage startvm "${BOX}"
+
+  echo -n "Waiting for installer to finish "
+  while VBoxManage list runningvms | grep "${BOX}" >/dev/null; do
+    sleep 10
+    echo -n "."
+  done
+  echo ""
+
+  # Forward SSH
+  VBoxManage modifyvm "${BOX}" \
+    --natpf1 "guestssh,tcp,,2222,,22"
+
+  VBoxManage startvm "${BOX}"
+
+  # Set up passwordless ssh + sudo
+  sleep 10
+  ./post-build.sh
+
+#  echo -n "Setting up passwordless ssh + sudo "
+#  while VBoxManage list runningvms | grep "${BOX}" >/dev/null; do
+#    sleep 10
+#    echo -n "."
+#  done
+#  echo ""
+
+  # Attach guest additions iso
+  VBoxManage storageattach "${BOX}" \
+    --storagectl "IDE Controller" \
+    --port 1 \
+    --device 0 \
+    --type dvddrive \
+    --medium "${ISO_GUESTADDITIONS}"
+
+  #VBoxManage modifyvm "${BOX}" --natpf1 delete "guestssh"
+
 fi
 
-VBoxManage startvm "${BOX}"
+
 
 # hook up install cd
 
