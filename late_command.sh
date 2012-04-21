@@ -20,3 +20,6 @@ gem install chef
 sed "s/quiet splash//" /etc/default/grub > /tmp/grub
 mv /tmp/grub /etc/default/grub
 update-grub
+
+# clean up
+apt-get clean
