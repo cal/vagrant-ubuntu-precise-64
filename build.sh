@@ -23,7 +23,7 @@ chmod -R u+w "${FOLDER_ISO_INITRD}"
 rm -rf "${FOLDER_ISO_INITRD}"
 mkdir -p "${FOLDER_ISO_INITRD}"
 
-ISO_URL="http://cdimage.ubuntu.com/releases/precise/beta-2/ubuntu-12.04-beta2-alternate-amd64+mac.iso"
+ISO_URL="http://cdimage.ubuntu.com/daily/current/precise-alternate-amd64.iso"
 ISO_FILENAME="${FOLDER_ISO}/`basename ${ISO_URL}`"
 
 INITRD_FILENAME="${FOLDER_ISO}/initrd.gz"
