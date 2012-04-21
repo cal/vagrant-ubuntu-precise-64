@@ -61,6 +61,10 @@ if [ ! -e "${FOLDER_ISO}/custom.iso" ]; then
   cp isolinux.cfg "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.cfg"  
   chmod u+w "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.bin"
 
+  # add late_command script
+  chmod u+w "${FOLDER_ISO_CUSTOM}"
+  cp "${FOLDER_BASE}/late_command.sh" "${FOLDER_ISO_CUSTOM}"
+
   mkisofs -r -V "Custom Ubuntu Install CD" \
     -cache-inodes -quiet \
     -J -l -b isolinux/isolinux.bin \
@@ -123,7 +127,7 @@ if ! VBoxManage showvminfo "${BOX}" >/dev/null 2>/dev/null; then
 
   echo -n "Waiting for installer to finish "
   while VBoxManage list runningvms | grep "${BOX}" >/dev/null; do
-    sleep 10
+    sleep 20
     echo -n "."
   done
   echo ""
@@ -140,12 +144,33 @@ if ! VBoxManage showvminfo "${BOX}" >/dev/null 2>/dev/null; then
     --type dvddrive \
     --medium "${ISO_GUESTADDITIONS}"
 
+  VBoxManage startvm "${BOX}"
 
+  # get private key
+  wget -O "${FOLDER_BUILD}/id_rsa" --no-check-certificate "https://raw.github.com/mitchellh/vagrant/master/keys/vagrant"
+  chmod 600 "${FOLDER_BUILD}/id_rsa"
 
+  # install virtualbox guest additions
+  ssh -i "${FOLDER_BUILD}/id_rsa" -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p 2222 vagrant@127.0.0.1 "sudo mount /dev/cdrom /media/cdrom; sudo sh /media/cdrom/VBoxLinuxAdditions.run; sudo umount /media/cdrom; sudo shutdown -h now"
+  echo -n "Waiting for machine to shut off "
+  while VBoxManage list runningvms | grep "${BOX}" >/dev/null; do
+    sleep 20
+    echo -n "."
+  done
+  echo ""
 
+  VBoxManage modifyvm "${BOX}" --natpf1 delete "guestssh"
 
+  # Detach guest additions iso
+  VBoxManage storageattach "${BOX}" \
+    --storagectl "IDE Controller" \
+    --port 1 \
+    --device 0 \
+    --type dvddrive \
+    --medium emptydrive
+fi
 
-#vagrant package --base "$name"
+vagrant package --base "${BOX}"
 
 # references:
 # http://blog.ericwhite.ca/articles/2009/11/unattended-debian-lenny-install/

@@ -1,1 +1,6 @@
 build/
+test/
+
+.DS_Store
+
+package.box
