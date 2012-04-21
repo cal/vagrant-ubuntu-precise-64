@@ -50,35 +50,15 @@ if [ ! -e "${FOLDER_ISO}/custom.iso" ]; then
   cp preseed.cfg "${FOLDER_ISO_INITRD}/preseed.cfg"
   cd "${FOLDER_ISO_INITRD}"
   find . | cpio --create --format='newc' | gzip  > "${FOLDER_ISO_CUSTOM}/install/initrd.gz"
-  #cd "${FOLDER_ISO_CUSTOM}"
-  #chmod u+w md5sum.txt
-  #find . -type f -print0 | xargs -0 md5 | sed 's/MD5 (\(.*\)) = \(.*\)/\2 \1/' > md5sum.txt 
-  #chmod u-w md5sum.txt
 
   # clean up permissions
   chmod u-w "${FOLDER_ISO_CUSTOM}/install" "${FOLDER_ISO_CUSTOM}/install/initrd.gz" "${FOLDER_ISO_CUSTOM}/install/initrd.gz.org"
-
-  # make new iso
-  #hdiutil makehybrid \
-  #  -iso -joliet \
-  #  -no-emul-boot \
-  #  -eltorito-boot "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.bin" \
-  #  -o "${FOLDER_ISO}/custom.iso" "${FOLDER_ISO_CUSTOM}"
-
-  #mkisofs -o "${FOLDER_ISO}/custom.iso" \
-  #  -r -J -no-emul-boot -boot-load-size 4 \
-  #  -b isolinux/isolinux.bin \
-  #  -c isolinux/boot.cat "${FOLDER_ISO_CUSTOM}"
-
-  #chmod u+w "${FOLDER_ISO_CUSTOM}/preseed"
-  #cp unattended.seed "${FOLDER_ISO_CUSTOM}/preseed/unattended.seed"
 
   # replace isolinux configuration
   cd "${FOLDER_BASE}"
   chmod u+w "${FOLDER_ISO_CUSTOM}/isolinux" "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.cfg"
   rm "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.cfg"
   cp isolinux.cfg "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.cfg"  
-
   chmod u+w "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.bin"
 
   mkisofs -r -V "Custom Ubuntu Install CD" \
@@ -152,19 +132,6 @@ if ! VBoxManage showvminfo "${BOX}" >/dev/null 2>/dev/null; then
   VBoxManage modifyvm "${BOX}" \
     --natpf1 "guestssh,tcp,,2222,,22"
 
-  VBoxManage startvm "${BOX}"
-
-  # Set up passwordless ssh + sudo
-  sleep 10
-  ./post-build.sh
-
-#  echo -n "Setting up passwordless ssh + sudo "
-#  while VBoxManage list runningvms | grep "${BOX}" >/dev/null; do
-#    sleep 10
-#    echo -n "."
-#  done
-#  echo ""
-
   # Attach guest additions iso
   VBoxManage storageattach "${BOX}" \
     --storagectl "IDE Controller" \
@@ -173,54 +140,10 @@ if ! VBoxManage showvminfo "${BOX}" >/dev/null 2>/dev/null; then
     --type dvddrive \
     --medium "${ISO_GUESTADDITIONS}"
 
-  #VBoxManage modifyvm "${BOX}" --natpf1 delete "guestssh"
-
-fi
 
 
 
-# hook up install cd
 
-# "install a command line system"
-
-# switch to tty1 (ctrl+alt+fn+f1)
-
-# edit /etc/default/grub
-# - GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
-# + GRUB_CMDLINE_LINUX_DEFAULT=""
-
-# sudo update-grub
-
-# edit /etc/sudoers
-# + %sudo   ALL=NOPASSWD: ALL
-
-# restart ...?
-
-# sudo apt-get update
-# sudo apt-get upgrade
-
-# sudo apt-get install build-essential
-
-# Devices > Install Guest Additions
-# sudo mount /dev/cdrom /media/cdrom
-# sudo sh /media/cdrom/VBoxLinuxAdditions.run
-# sudo umount /media/cdrom
-
-# sudo apt-get install ruby-dev rubygems puppet ssh
-# sudo gem install chef
-
-# cd /home/vagrant
-# mkdir .ssh
-# wget -O .ssh/authorized_keys "https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub"
-# chmod 755 .ssh
-# chmod 644 .ssh/authorized_keys
-
-# edit /etc/ssh/sshd_config
-# + UseDNS no
-
-# sudo rm .bash_history .nano_history .lesshst
-
-# shutdown / restart
 
 #vagrant package --base "$name"
 
