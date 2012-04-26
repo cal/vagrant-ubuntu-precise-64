@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# make sure we have dependencies 
+hash mkisofs 2>/dev/null || { echo >&2 "ERROR: mkisofs not found.  Aborting."; exit 1; }
+
 BOX="ubuntu-precise-64"
 
 # location, location, location
@@ -16,6 +19,7 @@ mkdir -p "${FOLDER_VBOX}"
 mkdir -p "${FOLDER_ISO}"
 
 # let's make sure they're empty
+echo "Cleaning Custom build directories..."
 chmod -R u+w "${FOLDER_ISO_CUSTOM}"
 rm -rf "${FOLDER_ISO_CUSTOM}"
 mkdir -p "${FOLDER_ISO_CUSTOM}"
@@ -23,27 +27,41 @@ chmod -R u+w "${FOLDER_ISO_INITRD}"
 rm -rf "${FOLDER_ISO_INITRD}"
 mkdir -p "${FOLDER_ISO_INITRD}"
 
-ISO_URL="http://cdimage.ubuntu.com/daily/current/precise-alternate-amd64.iso"
+ISO_URL="http://releases.ubuntu.com/precise/ubuntu-12.04-alternate-amd64.iso"
 ISO_FILENAME="${FOLDER_ISO}/`basename ${ISO_URL}`"
-
+ISO_MD5="9fcc322536575dda5879c279f0b142d7"
 INITRD_FILENAME="${FOLDER_ISO}/initrd.gz"
 
 ISO_GUESTADDITIONS="/Applications/VirtualBox.app/Contents/MacOS/VBoxGuestAdditions.iso"
 
-# download the installation disk if you haven't already
-if [ ! -e "${ISO_FILENAME}" ]; then
-  wget -O "${ISO_FILENAME}" "${ISO_URL}"
+# download the installation disk if you haven't already or it is corrupted somehow
+echo "Downloading ubuntu-12.04-alternate-amd64.iso ..."
+if [ ! -e "${ISO_FILENAME}" ] 
+then
+   curl --output "${ISO_FILENAME}" -L "${ISO_URL}"
+else
+  # make sure download is right...
+  ISO_HASH=`md5 -q "${ISO_FILENAME}"`
+  if [ "${ISO_MD5}" != "${ISO_HASH}" ]; then
+    echo "ERROR: MD5 does not match. Got ${ISO_HASH} instead of ${ISO_MD5}. Aborting."
+    exit 1
+  fi
 fi
 
 # customize it
+echo "Creating Custom ISO"
 if [ ! -e "${FOLDER_ISO}/custom.iso" ]; then
+
+  echo "Untarring downloaded ISO ..."
   tar -C "${FOLDER_ISO_CUSTOM}" -xf "${ISO_FILENAME}"
 
   # backup initrd.gz
+  echo "Backing up current init.rd ..."
   chmod u+w "${FOLDER_ISO_CUSTOM}/install" "${FOLDER_ISO_CUSTOM}/install/initrd.gz"
   mv "${FOLDER_ISO_CUSTOM}/install/initrd.gz" "${FOLDER_ISO_CUSTOM}/install/initrd.gz.org"
 
   # stick in our new initrd.gz
+  echo "Installing new initrd.gz ..."
   cd "${FOLDER_ISO_INITRD}"
   gunzip -c "${FOLDER_ISO_CUSTOM}/install/initrd.gz.org" | cpio -id
   cd "${FOLDER_BASE}"
@@ -52,9 +70,11 @@ if [ ! -e "${FOLDER_ISO}/custom.iso" ]; then
   find . | cpio --create --format='newc' | gzip  > "${FOLDER_ISO_CUSTOM}/install/initrd.gz"
 
   # clean up permissions
+  echo "Cleaning up Permissions ..."
   chmod u-w "${FOLDER_ISO_CUSTOM}/install" "${FOLDER_ISO_CUSTOM}/install/initrd.gz" "${FOLDER_ISO_CUSTOM}/install/initrd.gz.org"
 
   # replace isolinux configuration
+  echo "Replacing isolinux config ..."
   cd "${FOLDER_BASE}"
   chmod u+w "${FOLDER_ISO_CUSTOM}/isolinux" "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.cfg"
   rm "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.cfg"
@@ -62,9 +82,11 @@ if [ ! -e "${FOLDER_ISO}/custom.iso" ]; then
   chmod u+w "${FOLDER_ISO_CUSTOM}/isolinux/isolinux.bin"
 
   # add late_command script
+  echo "Add late_command script ..."
   chmod u+w "${FOLDER_ISO_CUSTOM}"
   cp "${FOLDER_BASE}/late_command.sh" "${FOLDER_ISO_CUSTOM}"
-
+  
+  echo "Running mkisofs ..."
   mkisofs -r -V "Custom Ubuntu Install CD" \
     -cache-inodes -quiet \
     -J -l -b isolinux/isolinux.bin \
@@ -74,6 +96,7 @@ if [ ! -e "${FOLDER_ISO}/custom.iso" ]; then
 
 fi
 
+echo "Creating VM Box..."
 # create virtual machine
 if ! VBoxManage showvminfo "${BOX}" >/dev/null 2>/dev/null; then
   VBoxManage createvm \
@@ -147,7 +170,7 @@ if ! VBoxManage showvminfo "${BOX}" >/dev/null 2>/dev/null; then
   VBoxManage startvm "${BOX}"
 
   # get private key
-  wget -O "${FOLDER_BUILD}/id_rsa" --no-check-certificate "https://raw.github.com/mitchellh/vagrant/master/keys/vagrant"
+  curl --output "${FOLDER_BUILD}/id_rsa" "https://raw.github.com/mitchellh/vagrant/master/keys/vagrant"
   chmod 600 "${FOLDER_BUILD}/id_rsa"
 
   # install virtualbox guest additions
@@ -162,6 +185,7 @@ if ! VBoxManage showvminfo "${BOX}" >/dev/null 2>/dev/null; then
   VBoxManage modifyvm "${BOX}" --natpf1 delete "guestssh"
 
   # Detach guest additions iso
+  echo "Detach guest additions ..."
   VBoxManage storageattach "${BOX}" \
     --storagectl "IDE Controller" \
     --port 1 \
@@ -170,6 +194,7 @@ if ! VBoxManage showvminfo "${BOX}" >/dev/null 2>/dev/null; then
     --medium emptydrive
 fi
 
+echo "Building Vagrant Box ..."
 vagrant package --base "${BOX}"
 
 # references:
