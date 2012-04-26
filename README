@@ -1,3 +1,14 @@
+Ben's notes:
+
+Forked Carl's repo, and it sort of worked out of the box. Tweaked for: 
+
+ - Downloading 12.04 final release. (Today as of this writing)
+ - Checking MD5 to make sure it is the right version
+ - Added a few more checks for external dependencies, mkisofs
+ - Removed wget, and used curl to reduce dependencies
+ - Added more output to see what is going on
+
+---------
 Decided I wanted to learn how to make a vagrant base box.
 
 Let's target Precise Pangolin since it should be releasing soon, I said.
