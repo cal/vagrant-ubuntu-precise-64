@@ -23,16 +23,17 @@ chmod -R u+w "${FOLDER_ISO_INITRD}"
 rm -rf "${FOLDER_ISO_INITRD}"
 mkdir -p "${FOLDER_ISO_INITRD}"
 
-ISO_URL="http://cdimage.ubuntu.com/daily/current/precise-alternate-amd64.iso"
+ISO_URL="http://releases.ubuntu.com/precise/ubuntu-12.04-alternate-amd64.iso"
 ISO_FILENAME="${FOLDER_ISO}/`basename ${ISO_URL}`"
-
+ISO_MD5="9fcc322536575dda5879c279f0b142d7"
 INITRD_FILENAME="${FOLDER_ISO}/initrd.gz"
 
 ISO_GUESTADDITIONS="/Applications/VirtualBox.app/Contents/MacOS/VBoxGuestAdditions.iso"
 
-# download the installation disk if you haven't already
-if [ ! -e "${ISO_FILENAME}" ]; then
-  wget -O "${ISO_FILENAME}" "${ISO_URL}"
+# download the installation disk if you haven't already or it is corrupted somehow
+if [ ! -e "${ISO_FILENAME}" ] || [ ! `md5 "${ISO_FILENAME}"` -eq ${ISO_MD5}] 
+then
+   curl -v --output "${ISO_FILENAME}" -L "${ISO_URL}"
 fi
 
 # customize it
