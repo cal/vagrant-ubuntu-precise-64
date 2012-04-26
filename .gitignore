@@ -3,5 +3,5 @@ test/
 
 .DS_Store
 
-package.box
+*.box
 *.iso

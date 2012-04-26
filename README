@@ -7,7 +7,8 @@ Forked Carl's repo, and it sort of worked out of the box. Tweaked for:
  - Added a few more checks for external dependencies, mkisofs
  - Removed wget, and used curl to reduce dependencies
  - Added more output to see what is going on
-
+ - Still designed to work on Mac OS X :)
+    ... though it should work for Linux systems too (maybe w/ a bit of porting)
 ---------
 Decided I wanted to learn how to make a vagrant base box.
 
