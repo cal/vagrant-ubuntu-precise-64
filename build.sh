@@ -185,6 +185,7 @@ if ! VBoxManage showvminfo "${BOX}" >/dev/null 2>/dev/null; then
   VBoxManage modifyvm "${BOX}" --natpf1 delete "guestssh"
 
   # Detach guest additions iso
+  echo "Detach guest additions ..."
   VBoxManage storageattach "${BOX}" \
     --storagectl "IDE Controller" \
     --port 1 \
@@ -193,6 +194,7 @@ if ! VBoxManage showvminfo "${BOX}" >/dev/null 2>/dev/null; then
     --medium emptydrive
 fi
 
+echo "Building Vagrant Box ..."
 vagrant package --base "${BOX}"
 
 # references:
