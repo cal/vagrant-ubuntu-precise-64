@@ -31,9 +31,16 @@ INITRD_FILENAME="${FOLDER_ISO}/initrd.gz"
 ISO_GUESTADDITIONS="/Applications/VirtualBox.app/Contents/MacOS/VBoxGuestAdditions.iso"
 
 # download the installation disk if you haven't already or it is corrupted somehow
-if [ ! -e "${ISO_FILENAME}" ] || [ ! `md5 "${ISO_FILENAME}"` -eq ${ISO_MD5}] 
+if [ ! -e "${ISO_FILENAME}" ] 
 then
-   curl -v --output "${ISO_FILENAME}" -L "${ISO_URL}"
+   curl --output "${ISO_FILENAME}" -L "${ISO_URL}"
+else
+  # make sure download is right...
+  ISO_HASH=`md5 -q "${ISO_FILENAME}"`
+  if [ "${ISO_MD5}" != "${ISO_HASH}" ]; then
+    echo "MD5 does not match. Got ${ISO_HASH} instead of ${ISO_MD5}"
+    exit 1
+  fi
 fi
 
 # customize it
