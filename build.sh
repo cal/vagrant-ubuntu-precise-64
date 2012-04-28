@@ -11,6 +11,7 @@ BOX="ubuntu-precise-64"
 
 # location, location, location
 FOLDER_BASE=`pwd`
+FOLDER_ISO_CACHE="${FOLDER_BASE}/iso-cache"
 FOLDER_BUILD="${FOLDER_BASE}/build"
 FOLDER_VBOX="${FOLDER_BUILD}/vbox"
 FOLDER_ISO="${FOLDER_BUILD}/iso"
@@ -34,6 +35,7 @@ mkdir -p "${FOLDER_ISO_INITRD}"
 
 ISO_URL="http://releases.ubuntu.com/precise/ubuntu-12.04-alternate-amd64.iso"
 ISO_FILENAME="${FOLDER_ISO}/`basename ${ISO_URL}`"
+ISO_CACHE_FILENAME="${FOLDER_ISO_CACHE}/`basename ${ISO_URL}`"
 ISO_MD5="9fcc322536575dda5879c279f0b142d7"
 INITRD_FILENAME="${FOLDER_ISO}/initrd.gz"
 
@@ -41,9 +43,12 @@ ISO_GUESTADDITIONS="/Applications/VirtualBox.app/Contents/MacOS/VBoxGuestAdditio
 
 # download the installation disk if you haven't already or it is corrupted somehow
 echo "Downloading ubuntu-12.04-alternate-amd64.iso ..."
-if [ ! -e "${ISO_FILENAME}" ] 
-then
-   curl --output "${ISO_FILENAME}" -L "${ISO_URL}"
+if [ ! -e "${ISO_FILENAME}" ]; then
+    if [ -e "${ISO_CACHE_FILENAME}" ]; then
+        cp "${ISO_CACHE_FILENAME}" "${ISO_FILENAME}"
+    else
+      curl --output "${ISO_FILENAME}" -L "${ISO_URL}"
+    fi
 else
   # make sure download is right...
   ISO_HASH=`md5 -q "${ISO_FILENAME}"`
