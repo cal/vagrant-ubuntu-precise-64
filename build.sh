@@ -3,6 +3,10 @@
 # make sure we have dependencies 
 hash mkisofs 2>/dev/null || { echo >&2 "ERROR: mkisofs not found.  Aborting."; exit 1; }
 
+set -o nounset
+set -o errexit
+#set -o xtrace
+
 BOX="ubuntu-precise-64"
 
 # location, location, location
@@ -16,7 +20,8 @@ FOLDER_ISO_INITRD="${FOLDER_BUILD}/iso/initrd"
 # let's make sure they exist
 mkdir -p "${FOLDER_BUILD}"
 mkdir -p "${FOLDER_VBOX}"
-mkdir -p "${FOLDER_ISO}"
+mkdir -p "${FOLDER_ISO_CUSTOM}"
+mkdir -p "${FOLDER_ISO_INITRD}"
 
 # let's make sure they're empty
 echo "Cleaning Custom build directories..."
