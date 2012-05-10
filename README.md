@@ -13,7 +13,7 @@ This script will:
 This should do everything you need. If you don't have 
 mkisofs, install macports, then:
 
-    sudo port install cdrtools
+    brew install cdrtools
 
 ### Ben's notes
 
