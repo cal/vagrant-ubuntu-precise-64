@@ -1,5 +1,4 @@
-About
------
+## About
 
 This script will: 
 
@@ -7,18 +6,16 @@ This script will:
  2. ... do some magic to turn it into a vagrant box file
  3. output package.box 
 
-Usage
------
+## Usage
 
- > ./build.sh
+    ./build.sh
 
- This should do everything you need. If you don't have 
- mkisofs, install macports, then: sudo port install cdrtools
+This should do everything you need. If you don't have 
+mkisofs, install macports, then:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    sudo port install cdrtools
 
-Ben's notes
------------
+### Ben's notes
 
 Forked Carl's repo, and it sort of worked out of the box. Tweaked 
 office 12.04 release: 
@@ -31,8 +28,7 @@ office 12.04 release:
  - Still designed to work on Mac OS X :)
     ... though it should work for Linux systems too (maybe w/ a bit of porting)
 
-Carl's original README
-----------------------
+### Carl's original README
 
 Decided I wanted to learn how to make a vagrant base box.
 
