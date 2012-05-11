@@ -14,4 +14,10 @@ Vagrant::Config.run do |config|
     # does all the magic.
     chef.add_recipe("vagrant_main")
   end
+
+  # Some NFS testing
+  config.vm.share_folder("v-root", "/vagrant", ".", :nfs => true)
+
+  # Static host-only IP
+  config.vm.network :hostonly, "10.0.73.57"
 end
