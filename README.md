@@ -11,7 +11,7 @@ This script will:
     ./build.sh
 
 This should do everything you need. If you don't have 
-mkisofs, install macports, then:
+mkisofs, install [homebrew](http://mxcl.github.com/homebrew/), then:
 
     brew install cdrtools
 
