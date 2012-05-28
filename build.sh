@@ -7,49 +7,43 @@ set -o nounset
 set -o errexit
 #set -o xtrace
 
+# Configurations
 BOX="ubuntu-precise-64"
+ISO_URL="http://releases.ubuntu.com/precise/ubuntu-12.04-alternate-amd64.iso"
+ISO_MD5="9fcc322536575dda5879c279f0b142d7"
 
 # location, location, location
 FOLDER_BASE=`pwd`
-FOLDER_ISO_CACHE="${FOLDER_BASE}/iso-cache"
+FOLDER_ISO="${FOLDER_BASE}/iso"
 FOLDER_BUILD="${FOLDER_BASE}/build"
 FOLDER_VBOX="${FOLDER_BUILD}/vbox"
-FOLDER_ISO="${FOLDER_BUILD}/iso"
 FOLDER_ISO_CUSTOM="${FOLDER_BUILD}/iso/custom"
 FOLDER_ISO_INITRD="${FOLDER_BUILD}/iso/initrd"
 
-# let's make sure they exist
+# start with a clean slate
+if [ -d "${FOLDER_BUILD}" ]; then
+  echo "Cleaning build directory ..."
+  chmod -R u+w "${FOLDER_BUILD}"
+  rm -rf "${FOLDER_BUILD}"
+  mkdir -p "${FOLDER_BUILD}"
+fi
+
+# Setting things back up again
+mkdir -p "${FOLDER_ISO}"
 mkdir -p "${FOLDER_BUILD}"
 mkdir -p "${FOLDER_VBOX}"
 mkdir -p "${FOLDER_ISO_CUSTOM}"
 mkdir -p "${FOLDER_ISO_INITRD}"
 
-# let's make sure they're empty
-echo "Cleaning Custom build directories..."
-chmod -R u+w "${FOLDER_ISO_CUSTOM}"
-rm -rf "${FOLDER_ISO_CUSTOM}"
-mkdir -p "${FOLDER_ISO_CUSTOM}"
-chmod -R u+w "${FOLDER_ISO_INITRD}"
-rm -rf "${FOLDER_ISO_INITRD}"
-mkdir -p "${FOLDER_ISO_INITRD}"
-
-ISO_URL="http://releases.ubuntu.com/precise/ubuntu-12.04-alternate-amd64.iso"
 ISO_FILENAME="${FOLDER_ISO}/`basename ${ISO_URL}`"
-ISO_CACHE_FILENAME="${FOLDER_ISO_CACHE}/`basename ${ISO_URL}`"
-ISO_MD5="9fcc322536575dda5879c279f0b142d7"
 INITRD_FILENAME="${FOLDER_ISO}/initrd.gz"
-
 ISO_GUESTADDITIONS="/Applications/VirtualBox.app/Contents/MacOS/VBoxGuestAdditions.iso"
 
 # download the installation disk if you haven't already or it is corrupted somehow
-echo "Downloading ubuntu-12.04-alternate-amd64.iso ..."
+echo "Downloading `basename ${ISO_URL}` ..."
 if [ ! -e "${ISO_FILENAME}" ]; then
-    if [ -e "${ISO_CACHE_FILENAME}" ]; then
-        cp "${ISO_CACHE_FILENAME}" "${ISO_FILENAME}"
-    else
-      curl --output "${ISO_FILENAME}" -L "${ISO_URL}"
-    fi
-else
+  curl --output "${ISO_FILENAME}" -L "${ISO_URL}"
+
   # make sure download is right...
   ISO_HASH=`md5 -q "${ISO_FILENAME}"`
   if [ "${ISO_MD5}" != "${ISO_HASH}" ]; then

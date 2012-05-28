@@ -1,7 +1,7 @@
 build/
 test/
+iso/
 
 .DS_Store
 
 *.box
-*.iso
