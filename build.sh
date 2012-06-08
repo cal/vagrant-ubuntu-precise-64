@@ -59,6 +59,25 @@ if [ ! -e "${FOLDER_ISO}/custom.iso" ]; then
   echo "Untarring downloaded ISO ..."
   tar -C "${FOLDER_ISO_CUSTOM}" -xf "${ISO_FILENAME}"
 
+  # in osx lion 10.7.4, tar won't extract anything and will fail silently. If that happens, look for a newer version of bsd tar
+  if [ ! `ls $FOLDER_ISO_CUSTOM` ]; then
+      TAR_COMMAND=tar
+      if [ -x '/usr/local/bin/bsdtar' ];
+      then
+          LOCAL_BSD_TAR=/usr/local/bin/bsdtar
+      else
+          LOCAL_BSD_TAR=/usr/bin/bsdtar
+      fi
+      echo "tar failed to extract ISO, falling back to $LOCAL_BSD_TAR"
+      "${LOCAL_BSD_TAR}" -C "${FOLDER_ISO_CUSTOM}" -xf "${ISO_FILENAME}"
+  fi
+
+  # If that still didn't work, you have to update tar
+  if [ ! `ls $FOLDER_ISO_CUSTOM` ]; then
+    echo "Error with extracting the ISO file with your version of tar. Try updating to libarchive 3.0.4 (using e.g. the homebrew-dupes project)"
+    exit 1
+  fi
+
   # backup initrd.gz
   echo "Backing up current init.rd ..."
   chmod u+w "${FOLDER_ISO_CUSTOM}/install" "${FOLDER_ISO_CUSTOM}/install/initrd.gz"
@@ -203,6 +222,7 @@ vagrant package --base "${BOX}"
 
 # references:
 # http://blog.ericwhite.ca/articles/2009/11/unattended-debian-lenny-install/
+# http://forums.macrumors.com/showthread.php?t=1377464 # osx lion tar/iso problem
 # http://cdimage.ubuntu.com/releases/precise/beta-2/
 # http://www.imdb.com/name/nm1483369/
 # http://vagrantup.com/docs/base_boxes.html

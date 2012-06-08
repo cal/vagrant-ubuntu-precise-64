@@ -15,6 +15,13 @@ mkisofs, install [homebrew](http://mxcl.github.com/homebrew/), then:
 
     brew install cdrtools
 
+Possible extra steps for OSX Lion:
+
+ - You may have trouble compiling the `smake` dependency of cdrtools with XCode 4.2.x or earlier. If compilation hangs, upgrade to XCode 4.3.x (free app store upgrade), open XCode and install the Command Line Tools (Preferences -> Downloads).
+ - tar 2.8.3 with libarchive 2.8.3 may fail to extract from the ISO image.  If this happens, update libarchive (will install to `/usr/local/bin/bsdtar`, won't overwrite system tar)
+  
+        brew install https://raw.github.com/oschrenk/homebrew-dupes/edbc2b464d0bf4420508297418481178299f420a/libarchive.rb
+
 ### Ben's notes
 
 Forked Carl's repo, and it sort of worked out of the box. Tweaked 
