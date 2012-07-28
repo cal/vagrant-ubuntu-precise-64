@@ -37,7 +37,21 @@ mkdir -p "${FOLDER_ISO_INITRD}"
 
 ISO_FILENAME="${FOLDER_ISO}/`basename ${ISO_URL}`"
 INITRD_FILENAME="${FOLDER_ISO}/initrd.gz"
-ISO_GUESTADDITIONS="/Applications/VirtualBox.app/Contents/MacOS/VBoxGuestAdditions.iso"
+
+# Try to locate the VBoxGuestAdditions.iso file
+ISO_GUESTADDITIONS=""
+
+for vbox_dir in /Applications/VirtualBox.app/Contents/MacOS /usr/share/virtualbox ; do
+  if [ -e "${vbox_dir}" ]; then
+    ISO_GUESTADDITIONS="${vbox_dir}/VBoxGuestAdditions.iso"
+  fi
+done
+
+if [ -z "${ISO_GUESTADDITIONS}" ]; then
+    echo "ERROR: Couldn't locate the VBoxGuestAdditions.iso CD image."
+    echo "This file is needed to continue. Please make sure you have installed it."
+    exit 1
+fi
 
 # download the installation disk if you haven't already or it is corrupted somehow
 echo "Downloading `basename ${ISO_URL}` ..."
