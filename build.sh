@@ -45,7 +45,12 @@ if [ ! -e "${ISO_FILENAME}" ]; then
   curl --output "${ISO_FILENAME}" -L "${ISO_URL}"
 
   # make sure download is right...
-  ISO_HASH=`md5 -q "${ISO_FILENAME}"`
+  case $OSTYPE in
+      darwin*) ISO_HASH=`md5 -q "${ISO_FILENAME}"` ;;
+      linux*)  ISO_HASH=`md5sum "${ISO_FILENAME}" | awk '{ print $1}'` ;;
+      *)        echo "unknown: $OSTYPE" ;;
+  esac
+
   if [ "${ISO_MD5}" != "${ISO_HASH}" ]; then
     echo "ERROR: MD5 does not match. Got ${ISO_HASH} instead of ${ISO_MD5}. Aborting."
     exit 1
