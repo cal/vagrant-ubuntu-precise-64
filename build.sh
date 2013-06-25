@@ -9,7 +9,7 @@ set -o errexit
 
 # Configurations
 BOX="ubuntu-precise-64"
-ISO_URL="http://releases.ubuntu.com/precise/ubuntu-12.04-alternate-amd64.iso"
+ISO_URL="http://releases.ubuntu.com/precise/ubuntu-12.04.2-alternate-amd64.iso"
 ISO_MD5="9fcc322536575dda5879c279f0b142d7"
 
 # location, location, location
