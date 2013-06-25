@@ -10,7 +10,7 @@ set -o errexit
 # Configurations
 BOX="ubuntu-precise-64"
 ISO_URL="http://releases.ubuntu.com/precise/ubuntu-12.04.2-alternate-amd64.iso"
-ISO_MD5="9fcc322536575dda5879c279f0b142d7"
+ISO_MD5="cff39ccc589c7797aacce9efee7b5f93"
 
 # location, location, location
 FOLDER_BASE=`pwd`
